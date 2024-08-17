@@ -1,0 +1,45 @@
+services:
+  neo4j:
+    container_name: 'neo4j'
+    build:
+      context: .
+      dockerfile: ./docker/neo4j/Dockerfile
+    volumes:
+      - ./docker/neo4j/data:/data
+      - ./docker/neo4j/logs:/logs
+      - ./docker/neo4j/conf:/conf
+      - ./docker/neo4j/import:/import
+      - ./docker/neo4j/script:/script
+    ports:
+      - 7474:7474
+      - 7687:7687
+    restart: on-failure
+    networks: 
+        - neo4j_go_net
+    command: neo4j
+    environment:
+      - NEO4J_AUTH=neo4j/testingpassword
+      - EXTENSION_SCRIPT=/script/import_data.sh
+    healthcheck:
+      test: "curl -f http://localhost:7474 || exit 1"
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  backend:
+    container_name: 'api-go'
+    build:
+      context: .
+      dockerfile: ./docker/go/Dockerfile
+    ports: 
+      - '8080:8080'
+    volumes: 
+      - './src:/go/src/app'
+    depends_on: 
+      - 'neo4j'
+    networks: 
+        - neo4j_go_net
+
+networks:
+  neo4j_go_net:
+    driver: bridge
