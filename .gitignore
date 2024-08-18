@@ -1,2 +1,4 @@
 docker/neo4j/data/*
 docker/neo4j/logs/*
+docker/neo4j/import/done
+docker/go/log/*

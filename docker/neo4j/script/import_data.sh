@@ -4,8 +4,8 @@ set -euC
 # EXTENSION_SCRIPTはコンテナが起動するたびにコールされるため、
 # import処理が実施済かフラグファイルの有無をチェック
 if [ -f /import/done ]; then
-    echo "Skip import process"
-    exit 0
+  echo "Skip import process"
+  return
 fi
 
 # データを全削除
@@ -18,6 +18,7 @@ echo "Delete database finished."
 echo "Start the data import process"
 neo4j-admin database import full \
   --nodes=/import/actors.csv \
+  --nodes=/import/movies.csv \
   --relationships=/import/roles.csv
 echo "Complete the data import process"
 

@@ -1,6 +1,6 @@
 services:
-  neo4j:
-    container_name: 'neo4j'
+  demo-neo4j:
+    container_name: 'demo-neo4j'
     build:
       context: .
       dockerfile: ./docker/neo4j/Dockerfile
@@ -15,7 +15,7 @@ services:
       - 7687:7687
     restart: on-failure
     networks: 
-        - neo4j_go_net
+      - neo4j_go_net
     command: neo4j
     environment:
       - NEO4J_AUTH=neo4j/testingpassword
@@ -26,6 +26,7 @@ services:
       retries: 5
       start_period: 20s
 
+
   backend:
     container_name: 'api-go'
     build:
@@ -35,10 +36,12 @@ services:
       - '8080:8080'
     volumes: 
       - './src:/go/src/app'
+      - ./docker/go/log:/go/src/log
     depends_on: 
-      - 'neo4j'
+      demo-neo4j:
+        condition: service_healthy
     networks: 
-        - neo4j_go_net
+      - neo4j_go_net
 
 networks:
   neo4j_go_net:
