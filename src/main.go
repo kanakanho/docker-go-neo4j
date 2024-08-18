@@ -45,12 +45,10 @@ func runQuery(uri, username, password string) (_ []string, err error) {
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println(txResult.Record().Values...)
 		records, err := txResult.Collect(ctx)
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println(records)
 		return records, nil
 	})
 	if err != nil {
@@ -93,6 +91,19 @@ func handleClose(ctx context.Context, closer interface{ Close(context.Context) e
 }
 
 func main() {
+	// results, err := runQuery("neo4j://localhost:7687", "neo4j", "testingpassword")
+	// if err != nil {
+	// 	fmt.Println("Failed to execute query:", err)
+	// 	return
+	// }
+	// for _, result := range results {
+	// 	fmt.Println(result)
+	// }
+
+	router()
+}
+
+func router() {
 	f, _ := os.Create("../log/server.log")
 	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
 	router := gin.Default()
@@ -100,8 +111,8 @@ func main() {
 	router.GET("/hello", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "Hello, World!"})
 	})
-	router.GET("/", func(c *gin.Context) {
-		results, err := runQuery("neo4j://localhost:7687", "neo4j", "testingpassword")
+	router.GET("/actor", func(c *gin.Context) {
+		results, err := runQuery("neo4j://demo-neo4j:7687", "neo4j", "testingpassword")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
